@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia de Estudo de Golpes de Judô</title>
+    <style>
+        /* Estilos Gerais */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #2980b9;
+            --background-color: #ecf0f1;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        /* Filtros */
+        #filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .filter-group select, .filter-group button {
+            padding: 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 1em;
+            background-color: #fff;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px rgba(41, 128, 185, 0.5);
+        }
+        
+        .filter-group button {
+            background-color: var(--accent-color);
+            color: white;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+
+        .filter-group button:hover {
+            background-color: #3498db;
+        }
+        
+        .hidden {
+            display: none;
+        }
+
+        /* Resultados */
+        #results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .technique-card {
+            background-color: var(--card-bg);
+            border: 1px solid #ddd;
+            border-left: 5px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .technique-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .technique-card .card-content {
+            flex-grow: 1;
+        }
+
+        .technique-card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.5em;
+        }
+
+        .technique-card p {
+            margin: 5px 0;
+            color: var(--secondary-color);
+        }
+
+        .technique-card .gokyo {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .technique-card a {
+            display: inline-block;
+            margin-top: 15px;
+            background-color: #27ae60;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+
+        .technique-card a:hover {
+            background-color: #2ecc71;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Guia de Estudo de Golpes de Judô</h1>
+        </header>
+
+        <div id="filters">
+            <div class="filter-group">
+                <label for="filter1">Grupo Técnica 1</label>
+                <select id="filter1"></select>
+            </div>
+            <div class="filter-group hidden" id="filter-group-2">
+                <label for="filter2">Grupo Técnica 2</label>
+                <select id="filter2"></select>
+            </div>
+            <div class="filter-group hidden" id="filter-group-3">
+                <label for="filter3">Grupo Técnica 3</label>
+                <select id="filter3"></select>
+            </div>
+            <div class="filter-group">
+                <label for="filter-gokyo">Gokyo</label>
+                <select id="filter-gokyo"></select>
+            </div>
+             <div class="filter-group">
+                <button id="reset-button">Limpar Filtros</button>
+            </div>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const csvData = `Grupo Tecnica 1;Grupo Tecnica 2;Grupo Tecnica 3;Numero Golpe;Gokyo;Nome Golpe;Link
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);1;GK-1;Seoi Nage;https://www.youtube.com/watch?v=bvFuhJwg6AY
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);2;;Ippon Seoi Nage;https://www.youtube.com/watch?v=FQnOlCxo4oI
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);3;;Seoi Otoshi;https://www.youtube.com/watch?v=vu1TMVNnq34
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);4;GK-2;Tai Otoshi;https://www.youtube.com/watch?v=IuRR3qnN1F0
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);5;GK-3;Kata Guruma;https://www.youtube.com/watch?v=-ginKJbQoV4
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);6;GK-4;Sukui Nage;https://www.youtube.com/watch?v=bMvZ7UWWSQ0
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);7;;Obi Otoshi;https://www.youtube.com/watch?v=pQNOSQZQAtE
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);8;GK-4;Uki Otoshi;https://www.youtube.com/watch?v=s_wLc-4Hfok
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);9;GK-5;Sumi Otoshi;https://www.youtube.com/watch?v=61FZt9DQKJ4
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);10;;Yama Arashi;https://www.youtube.com/watch?v=MGlyKmSuzdc
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);11;;Obi Tori Gaeshi;https://www.youtube.com/watch?v=bpc82SrunUU
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);12;;Morote Gari;https://www.youtube.com/watch?v=BHLQS4K85bs
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);13;;Kuchiki Taoshi;https://www.youtube.com/watch?v=ZNL47q1aJNY
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);14;;Kibisu Gaeshi;https://www.youtube.com/watch?v=tJylJYfBliA
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);15;;Uchi Mata Sukashi;https://www.youtube.com/watch?v=V-RS3uhtVWM
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);TE WAZA (Mãos e Braços);16;;Ko Uchi Gaeshi;https://www.youtube.com/watch?v=_MWAdYi_LC4
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);KOSHI WAZA (Quadril);1;GK-1;Uki Goshi;https://www.youtube.com/watch?v=r0bLLYr7h1g
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);KOSHI WAZA (Quadril);2;GK-1;O Goshi;https://www.youtube.com/watch?v=o28Uq3XuMQM
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);KOSHI WAZA (Quadril);3;GK-2;Koshi Guruma;https://www.youtube.com/watch?v=_caPA9tdYlc
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);KOSHI WAZA (Quadril);4;GK-2;Tsurikomi Goshi;https://www.youtube.com/watch?v=O1ZWpJ6Jr_0
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);KOSHI WAZA (Quadril);5;;Sode Tsurikomi Goshi;https://www.youtube.com/watch?v=QsmAxpmYLOI
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);KOSHI WAZA (Quadril);6;GK-2;Harai Goshi;https://www.youtube.com/watch?v=LOplVV0E1o0
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);KOSHI WAZA (Quadril);7;GK-3;Tsuri Goshi;https://www.youtube.com/watch?v=23uVGMmw1hE
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);KOSHI WAZA (Quadril);8;GK-3;Hane Goshi;https://www.youtube.com/watch?v=qi7BMt4X1e4
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);KOSHI WAZA (Quadril);9;GK-4;Utsuri Goshi;https://www.youtube.com/watch?v=3ARHWWYXJL4
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);KOSHI WAZA (Quadril);10;GK-5;Ushiro Goshi;https://www.youtube.com/watch?v=7Vxx37niqio
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);1;GK-1;De Ashi Harai;https://www.youtube.com/watch?v=8plL-qKdxP4
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);2;GK-1;Hiza Guruma;https://www.youtube.com/watch?v=GTi1GZ0ZSSE
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);3;GK-1;Sasae Tsurikomi Ashi;https://www.youtube.com/watch?v=Lk7HX8kYJUc
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);4;GK-1;O Soto Gari;https://www.youtube.com/watch?v=DfMBMzIHJwQ
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);5;GK-1;O Uchi Gari;https://www.youtube.com/watch?v=65u6c7FQOMU
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);6;GK-2;Ko Soto Gari;https://www.youtube.com/watch?v=ZaiDTvVqhq4
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);7;GK-2;Ko Uchi Gari;https://www.youtube.com/watch?v=1GcmsS6cBUk
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);8;GK-2;Okuri Ashi Harai;https://www.youtube.com/watch?v=9kJtCmWcqz8
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);9;GK-2;Uchi Mata;https://www.youtube.com/watch?v=RP9HkLBBK1Y
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);10;GK-3;Ko Soto Gake;https://www.youtube.com/watch?v=mHhccqTONjM
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);11;GK-3;Ashi Guruma;https://www.youtube.com/watch?v=al7WFnhAj-Y
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);12;GK-3;Harai Tsurikomi Ashi;https://www.youtube.com/watch?v=m6hL8rd9vyU
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);13;GK-4;O Guruma;https://www.youtube.com/watch?v=Icozusqc8bw
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);14;GK-5;O Soto Guruma;https://www.youtube.com/watch?v=4uWKd03LFQw
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);15;;O Soto Otoshi;https://www.youtube.com/watch?v=2DsVvDw7b8g
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);16;;Tsubame Gaeshi;https://www.youtube.com/watch?v=GwweWqqFB5g
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);17;;O Soto Gaeshi;https://www.youtube.com/watch?v=8ZjM3X_EANo
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);18;;O Uchi Gaeshi;https://www.youtube.com/watch?v=dCyZTXyjIXE
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);19;;Hane Goshi Gaeshi;https://www.youtube.com/watch?v=9bZAZSBtnGs
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);20;;Harai Goshi Gaeshi;https://www.youtube.com/watch?v=4U3It-7PPsc
+NAGE WAZA (Técnica de Projeção e Arremesso);TACHI WAZA (Técnica em Pé);ASHI WAZA (Pernas);21;;Uchi Mata Gaeshi;https://www.youtube.com/watch?v=Sy6sLWxkWYw
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);MA SUTEMI WAZA (Supino);1;GK-3;Tomoe Nage;https://www.youtube.com/watch?v=lAwMgoRa8QE
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);MA SUTEMI WAZA (Supino);2;GK-4;Sumi Gaeshi;https://www.youtube.com/watch?v=JWUrurU6nQI
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);MA SUTEMI WAZA (Supino);3;;Hikikomi Gaeshi;https://www.youtube.com/watch?v=92zUYWBp5N8
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);MA SUTEMI WAZA (Supino);4;;Tawara Gaeshi;https://www.youtube.com/watch?v=TmTWgrmViZc
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);MA SUTEMI WAZA (Supino);5;GK-5;Ura Nage;https://www.youtube.com/watch?v=377kfBb7IUo
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);1;GK-3;Yoko Otoshi;https://www.youtube.com/watch?v=RKWZLSo8uss
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);2;GK-4;Tani Otoshi;https://www.youtube.com/watch?v=DiD0D5tHkUA
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);3;GK-4;Hane Makikomi;https://www.youtube.com/watch?v=F2yM4ofKw84
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);4;GK-4;Soto Makikomi;https://www.youtube.com/watch?v=W-Zb92N97_Q
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);5;;Uchi Makikomi;https://www.youtube.com/watch?v=5BowcjduxVc
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);6;GK-5;Uki Waza;https://www.youtube.com/watch?v=DmN47H5kTL8
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);7;GK-5;Yoko Wakare;https://www.youtube.com/watch?v=dKN3wtx3d4c
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);8;GK-5;Yoko Guruma;https://www.youtube.com/watch?v=pshwfVB0HuU
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);9;GK-5;Yoko Gake;https://www.youtube.com/watch?v=7HS7kVtf9xw
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);10;;Daki Wakare;https://www.youtube.com/watch?v=Hr0cOMGBDYo
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);11;;O Soto Makikomi;https://www.youtube.com/watch?v=DGDv2oMwmas
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);12;;Uchi Mata Makikomi;https://www.youtube.com/watch?v=jZXENTLpJCI
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);13;;Harai Makikomi;https://www.youtube.com/watch?v=VBaHzKaCXss
+NAGE WAZA (Técnica de Projeção e Arremesso);SUTEMI WAZA (Técnica de Sacrifício);YOKO SUTEMI WAZA (Lateral);14;;Ko Uchi Makikomi;https://www.youtube.com/watch?v=_1eygIXLD_w
+KATAME WAZA (Técnica de Imobilização);OSAE KOMI WAZA (Imobilização);;1;;Kesa Gatame;https://www.youtube.com/watch?v=NDaQuJOFBYk
+KATAME WAZA (Técnica de Imobilização);OSAE KOMI WAZA (Imobilização);;2;;Kuzure Kesa Gatame;https://www.youtube.com/watch?v=Q2fb9jaoUFQ
+KATAME WAZA (Técnica de Imobilização);OSAE KOMI WAZA (Imobilização);;3;;Ushiro Kesa Gatame;https://www.youtube.com/watch?v=SBapox2M2dE
+KATAME WAZA (Técnica de Imobilização);OSAE KOMI WAZA (Imobilização);;4;;Makura Kesa Gatame;https://www.youtube.com/watch?v=e5HrhANfDcU
+KATAME WAZA (Técnica de Imobilização);OSAE KOMI WAZA (Imobilização);;5;;Kata Gatame;https://www.youtube.com/watch?v=zQR3IOXxO_Q
+KATAME WAZA (Técnica de Imobilização);OSAE KOMI WAZA (Imobilização);;6;;Yoko Shiho Gatame;https://www.youtube.com/watch?v=TT7XJVSEQxA
+KATAME WAZA (Técnica de Imobilização);OSAE KOMI WAZA (Imobilização);;7;;Tate Shiho Gatame;https://www.youtube.com/watch?v=55-rFmBx53g
+KATAME WAZA (Técnica de Imobilização);OSAE KOMI WAZA (Imobilização);;8;;Kami Shiho Gatame;https://www.youtube.com/watch?v=HFuMjOv0WN8
+KATAME WAZA (Técnica de Imobilização);OSAE KOMI WAZA (Imobilização);;9;;Kuzure Kami Shiho Gatame;https://www.youtube.com/watch?v=YUrogQWdwiY
+KATAME WAZA (Técnica de Imobilização);OSAE KOMI WAZA (Imobilização);;10;;Ura Gatame;https://www.youtube.com/watch?v=eeAHZB0v3XY
+KATAME WAZA (Técnica de Imobilização);OSAE KOMI WAZA (Imobilização);;11;;Uki Gatame;https://www.youtube.com/watch?v=e_lAjik1SUM
+KATAME WAZA (Técnica de Imobilização);SHIME WAZA (Estrangulamento);;1;;Nami Juji Jime;https://www.youtube.com/watch?v=k2cHry9HByQ
+KATAME WAZA (Técnica de Imobilização);SHIME WAZA (Estrangulamento);;2;;Kata Juji Jime;https://www.youtube.com/watch?v=3VZVUAmiMD8
+KATAME WAZA (Técnica de Imobilização);SHIME WAZA (Estrangulamento);;3;;Gyaku Juji Jime;https://www.youtube.com/watch?v=t3tQriIPdlI
+KATAME WAZA (Técnica de Imobilização);SHIME WAZA (Estrangulamento);;4;;Tsukomi Jime;https://www.youtube.com/watch?v=dKKpnD3eLcY
+KATAME WAZA (Técnica de Imobilização);SHIME WAZA (Estrangulamento);;5;;Sode Guruma Jime;https://www.youtube.com/watch?v=E3nvQzClcAU
+KATAME WAZA (Técnica de Imobilização);SHIME WAZA (Estrangulamento);;6;;Katate Jime;https://www.youtube.com/watch?v=cHeIs-fSqwE
+KATAME WAZA (Técnica de Imobilização);SHIME WAZA (Estrangulamento);;7;;Hadaka Jime;https://www.youtube.com/watch?v=9f0n8jez7iA
+KATAME WAZA (Técnica de Imobilização);SHIME WAZA (Estrangulamento);;8;;Okuri Eri Jime;https://www.youtube.com/watch?v=EiqyoVcIAi8
+KATAME WAZA (Técnica de Imobilização);SHIME WAZA (Estrangulamento);;9;;Kataha Jime;https://www.youtube.com/watch?v=yaTGgRjnwB8
+KATAME WAZA (Técnica de Imobilização);SHIME WAZA (Estrangulamento);;10;;Sankaku Jime;https://www.youtube.com/watch?v=lq1CUBRAm7s
+KATAME WAZA (Técnica de Imobilização);SHIME WAZA (Estrangulamento);;11;;Ryote Jime;https://www.youtube.com/watch?v=-RHC4V7TQiY
+KATAME WAZA (Técnica de Imobilização);SHIME WAZA (Estrangulamento);;12;;Jigoku Jime;https://www.youtube.com/watch?v=fJ0Cu8VVNN8
+KATAME WAZA (Técnica de Imobilização);KANSETSU WAZA (Torção / Articulação);;1;;Ude Garami;https://www.youtube.com/watch?v=AIlTvZb4RlE
+KATAME WAZA (Técnica de Imobilização);KANSETSU WAZA (Torção / Articulação);;2;;Ude Hishigi Ude Gatame;https://www.youtube.com/watch?v=SBf0aTma1VI
+KATAME WAZA (Técnica de Imobilização);KANSETSU WAZA (Torção / Articulação);;3;;Ude Hishigi Juji Gatame;https://www.youtube.com/watch?v=OWgSOlCuMXw
+KATAME WAZA (Técnica de Imobilização);KANSETSU WAZA (Torção / Articulação);;4;;Ude Hishigi Waki Gatame;https://www.youtube.com/watch?v=8F5p1zuJRG0
+KATAME WAZA (Técnica de Imobilização);KANSETSU WAZA (Torção / Articulação);;5;;Ude Hishigi Sankaku Gatame;https://www.youtube.com/watch?v=WefAmW4azhk
+KATAME WAZA (Técnica de Imobilização);KANSETSU WAZA (Torção / Articulação);;6;;Ude Hishigi Hiza Gatame;https://www.youtube.com/watch?v=H2HtAJdiJcE
+KATAME WAZA (Técnica de Imobilização);KANSETSU WAZA (Torção / Articulação);;7;;Ude Hishigi Hara Gatame;https://www.youtube.com/watch?v=ZzEycg8R_9M
+KATAME WAZA (Técnica de Imobilização);KANSETSU WAZA (Torção / Articulação);;8;;Ude Hishigi Ashi Gatame;https://www.youtube.com/watch?v=ClY7g_pX-4s
+KATAME WAZA (Técnica de Imobilização);KANSETSU WAZA (Torção / Articulação);;9;;Ude Hishigi Te Gatame;https://www.youtube.com/watch?v=6DnvhY0tQVM`;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elementos do DOM
+            const filter1 = document.getElementById('filter1');
+            const filter2 = document.getElementById('filter2');
+            const filter3 = document.getElementById('filter3');
+            const filterGokyo = document.getElementById('filter-gokyo'); // Novo
+            const filterGroup2 = document.getElementById('filter-group-2');
+            const filterGroup3 = document.getElementById('filter-group-3');
+            const resultsContainer = document.getElementById('results');
+            const resetButton = document.getElementById('reset-button');
+
+            // Processa o CSV para JSON
+            const lines = csvData.trim().split('\n');
+            const headers = lines.shift().split(';');
+            const data = lines.map(line => {
+                const values = line.split(';');
+                let obj = {};
+                headers.forEach((header, i) => {
+                    obj[header.trim()] = values[i] ? values[i].trim() : '';
+                });
+                return obj;
+            });
+
+            // Função para popular um <select> com opções
+            const populateSelect = (selectElement, options, defaultLabel) => {
+                selectElement.innerHTML = `<option value="">-- ${defaultLabel} --</option>`;
+                options.forEach(option => {
+                    if (option) {
+                        const opt = document.createElement('option');
+                        opt.value = option;
+                        opt.textContent = option;
+                        selectElement.appendChild(opt);
+                    }
+                });
+            };
+            
+            // Função principal para exibir os resultados
+            const displayResults = () => {
+                resultsContainer.innerHTML = '';
+
+                const val1 = filter1.value;
+                const val2 = filter2.value;
+                const val3 = filter3.value;
+                const valGokyo = filterGokyo.value; // Novo
+
+                const filteredData = data.filter(item => {
+                    const match1 = !val1 || item['Grupo Tecnica 1'] === val1;
+                    const match2 = !val2 || item['Grupo Tecnica 2'] === val2;
+                    const match3 = !val3 || item['Grupo Tecnica 3'] === val3;
+                    const matchGokyo = !valGokyo || item['Gokyo'] === valGokyo; // Novo
+                    return match1 && match2 && match3 && matchGokyo;
+                });
+
+                if (filteredData.length === 0) {
+                    resultsContainer.innerHTML = '<p>Nenhum golpe encontrado com os filtros selecionados.</p>';
+                    return;
+                }
+
+                filteredData.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'technique-card';
+                    
+                    let gokyoHtml = item.Gokyo ? `<span class="gokyo">${item.Gokyo}</span>` : '';
+
+                    card.innerHTML = `
+                        <div class="card-content">
+                            <h3>${item['Nome Golpe']} ${gokyoHtml}</h3>
+                            <p><strong>Grupo:</strong> ${item['Grupo Tecnica 1']}</p>
+                            ${item['Grupo Tecnica 2'] ? `<p><strong>Sub-grupo:</strong> ${item['Grupo Tecnica 2']}</p>` : ''}
+                            ${item['Grupo Tecnica 3'] ? `<p><strong>Categoria:</strong> ${item['Grupo Tecnica 3']}</p>` : ''}
+                        </div>
+                        <a href="${item.Link}" target="_blank" rel="noopener noreferrer">Ver Vídeo</a>
+                    `;
+                    resultsContainer.appendChild(card);
+                });
+            };
+
+            // Funções para atualizar os filtros em cascata
+            const updateFilter2 = () => {
+                const selectedVal1 = filter1.value;
+                filterGroup2.classList.add('hidden');
+                filterGroup3.classList.add('hidden');
+                filter2.value = '';
+                filter3.value = '';
+
+                if (selectedVal1) {
+                    const options2 = [...new Set(data
+                        .filter(item => item['Grupo Tecnica 1'] === selectedVal1)
+                        .map(item => item['Grupo Tecnica 2'])
+                    )].filter(Boolean);
+
+                    if (options2.length > 0) {
+                         populateSelect(filter2, options2, 'Selecione o sub-grupo');
+                         filterGroup2.classList.remove('hidden');
+                    }
+                }
+                displayResults();
+            };
+
+            const updateFilter3 = () => {
+                const selectedVal1 = filter1.value;
+                const selectedVal2 = filter2.value;
+                filterGroup3.classList.add('hidden');
+                filter3.value = '';
+
+                if (selectedVal1 && selectedVal2) {
+                    const options3 = [...new Set(data
+                        .filter(item => item['Grupo Tecnica 1'] === selectedVal1 && item['Grupo Tecnica 2'] === selectedVal2)
+                        .map(item => item['Grupo Tecnica 3'])
+                    )].filter(Boolean);
+                    
+                    if (options3.length > 0) {
+                        populateSelect(filter3, options3, 'Selecione a categoria');
+                        filterGroup3.classList.remove('hidden');
+                    }
+                }
+                displayResults();
+            };
+            
+            // Função para resetar tudo
+            const resetFilters = () => {
+                filter1.value = '';
+                filter2.value = '';
+                filter3.value = '';
+                filterGokyo.value = ''; // Novo
+                filterGroup2.classList.add('hidden');
+                filterGroup3.classList.add('hidden');
+                displayResults();
+            };
+
+            // Event Listeners
+            filter1.addEventListener('change', updateFilter2);
+            filter2.addEventListener('change', updateFilter3);
+            filter3.addEventListener('change', displayResults);
+            filterGokyo.addEventListener('change', displayResults); // Novo
+            resetButton.addEventListener('click', resetFilters);
+
+            // Inicialização
+            const initialOptions1 = [...new Set(data.map(item => item['Grupo Tecnica 1']))];
+            populateSelect(filter1, initialOptions1, 'Selecione um grupo');
+
+            // Novo: Popular o filtro de Gokyo
+            const gokyoOptions = [...new Set(data.map(item => item.Gokyo))].filter(Boolean).sort();
+            populateSelect(filterGokyo, gokyoOptions, 'Todos os Gokyos');
+            
+            displayResults(); // Mostra todos os resultados inicialmente
+        });
+    </script>
+</body>
+</html>
